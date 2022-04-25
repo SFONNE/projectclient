@@ -13,11 +13,11 @@ export default function Logout({ token }) {
     useEffect(() => {
         logout()
     }, [])
-
+    
     const logout = async () => {
         console.log('remove token: ', token)
         let result = await axios.get(`${config.URL}/logout`, { withCredentials: true })
-        setStatus("Logout successful")
+       setStatus("Logout successful")
     }
  
     return (
@@ -25,7 +25,7 @@ export default function Logout({ token }) {
             <Head>
                 <title>User profile</title>
             </Head>
-            <div className={styles.container}>
+            <div className="pt-6 md:p-8 text-center md:text-left space-y-4">
                 <Navbar />
                 <h1>Logout</h1>
                 <div>
