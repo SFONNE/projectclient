@@ -13,25 +13,37 @@ export default function Logout({ token }) {
     useEffect(() => {
         logout()
     }, [])
-    
+
     const logout = async () => {
         console.log('remove token: ', token)
         let result = await axios.get(`${config.URL}/logout`, { withCredentials: true })
-       setStatus("Logout successful")
+        setStatus("Logout successful")
     }
  
     return (
         <Layout>
             <Head>
-                <title>User profile</title>
+                <title>Logout</title>
             </Head>
-            <div className="pt-6 md:p-8 text-center md:text-left space-y-4">
+            <div className=''>
+                 <header className="flex justify-between bg-pink-900">
                 <Navbar />
-                <h1>Logout</h1>
-                <div>
-                    <h2> {status}  </h2>
+                </header>
+                <div className='flex  justify-center h-screen bg-gray-800  '> 
+                <div className='flex flex-row'>
+                <div className='text-5xl font-extrabold'>
+                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-lime-500 ">
+
+                    {status}  
+                </span>
+
+                </div>
                 </div>
             </div>
+            </div>
+              <footer className="flex justify-center mt-4 bg-pink-900 p-4">
+          <div>Copy right by Kriengsak Sajjapiromruk</div>
+        </footer>
         </Layout>
     )
 }

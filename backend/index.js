@@ -1,3 +1,4 @@
+
 const express = require('express'),
     app = express(),
     passport = require('passport'),
@@ -6,9 +7,16 @@ const express = require('express'),
     cookie = require('cookie')
 
 const bcrypt = require('bcrypt')
+const { json } = require('express')
 
 const db = require('./database.js')
 let users = db.users
+
+let students = {
+    list: [
+        { id: 1, fname: "Kriengsa", surname: "Sajjapiromruk", major: "CoE", gpa: 2.5 }
+    ]
+}
 
 require('./passport.js')
 
@@ -20,7 +28,6 @@ router.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 // router.use(cors())
 router.use(express.json())
 router.use(express.urlencoded({ extended: false }))
-
 
 router.post('/login', (req, res, next) => {
     passport.authenticate('local', { session: false }, (err, user, info) => {
@@ -48,7 +55,7 @@ router.post('/login', (req, res, next) => {
     })(req, res, next)
 })
 
-router.get('/logout', (req, res) => { 
+router.get('/logout', (req, res) => {
     res.setHeader(
         "Set-Cookie",
         cookie.serialize("token", '', {
@@ -70,21 +77,110 @@ router.get('/profile',
         res.send(req.user)
     });
 
-// /foo 
+/* GET user foo. */
 router.get('/foo',
     passport.authenticate('jwt', { session: false }),
     (req, res, next) => {
-        res.send(req.user)
-        res.send('foo')
+        return res.json({ message: 'foo' })
     });
 
+
+    router.route('/students')
+    .get((req, res) => res.json(students))
+
+
+router.post('/students',
+    // passport.authenticate('jwt', { session: false }),
+    (req, res) => {
+        try {
+
+            let newStudent = {}
+            newStudent.id = (students.list.length) ? students.list[students.list.length - 1].id + 1 : 1
+            newStudent.fname = req.body.fname;
+            newStudent.surname = req.body.surname;
+            newStudent.major = req.body.major;
+            newStudent.gpa = req.body.gpa;
+
+            students = { "list": [...students.list, newStudent] }
+            res.json(students)
+        }
+        catch
+        {
+            res.json({ status: "Add Fail" })
+        }
+
+
+
+    })
+    router.route('/students/:std_id')
+    .get((req, res) => {
+
+        let ID = students.list.findIndex( item => (item.id === +req.params.std_id))
+        if(ID >= 0)
+        {
+            res.json(students.list[ID])
+        }
+        else
+        {
+            res.json({status: "Student Error can't find!"})
+        }
+
+    })
+
+    .put( (req,res) => { 
+
+        let ID = students.list.findIndex( item => ( item.id === +req.params.std_id))
+        
+        if( ID >= 0)
+        {
+            students.list[ID].fname = req.body.fname
+            students.list[ID].surname = req.body.surname
+            students.list[ID].major = req.body.major
+            students.list[ID].gpa = req.body.gpa
+            
+            res.json(students)
+
+
+        }
+        else
+        {
+            res.json({status: "Student Error can't find!"})
+        }
+            
+    })
+
+    .delete((req, res) => {
+
+        let ID = students.list.findIndex( item => ( item.id === +req.params.std_id))
+
+        if(ID>=0)
+        {
+            students.list = students.list.filter( item => item.id !== +req.params.std_id)
+            res.json(students)
+        }
+        else
+        {
+            res.json({status: "Student Error can't find!"})
+        }
+
+    })
+
+let tasks = [
+    { id: 1, name: 'sage', weight : '54' ,picture:'https://img.4gamers.com.tw/ckfinder-th/image2/auto/2020-09/Sage-Valorant-1-1024x576-200902-141712.jpg?versionId=nRTNK1uX1p2ESX9nwbHypJNXHaNOV1z2'},
+    { id: 2, name: 'Killjoy', weight : '56' ,picture:'https://th.dafaesports.com/wp-content/uploads/2022/01/Valorant-Killjoy-678x381.jpg'},
+    { id: 3, name: 'Neon', weight : '52' ,picture:'https://i.ytimg.com/vi/cVejOleLHJY/maxresdefault.jpg'},
+    { id: 4, name: 'Jett', weight : '49' ,picture:'https://i.ytimg.com/vi/FHEHDHSiUfM/maxresdefault.jpg'}
+]
+app.get('/bear', (req, res) => {
+    res.json(tasks)
+})
 router.post('/register',
     async (req, res) => {
         try {
             const SALT_ROUND = 10
-            const { username, email, password } = req.body 
+            const { username, email, password } = req.body
             if (!username || !email || !password)
-                return res.json( {message: "Cannot register with empty string"})
+                return res.json({ message: "Cannot register with empty string" })
             if (db.checkExistingUser(username) !== db.NOT_FOUND)
                 return res.json({ message: "Duplicated user" })
 
@@ -97,7 +193,7 @@ router.post('/register',
         }
     })
 
-router.get('/alluser', (req,res) => res.json(db.users.users))
+router.get('/alluser', (req, res) => res.json(db.users.users))
 
 router.get('/', (req, res, next) => {
     res.send('Respond without authentication');
@@ -117,3 +213,4 @@ app.use((err, req, res, next) => {
 
 // Start Server
 app.listen(port, () => console.log(`Server is running on port ${port}`))
+

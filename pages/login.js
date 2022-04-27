@@ -5,12 +5,16 @@ import Navbar from '../components/navbar'
 import styles from '../styles/Home.module.css'
 import axios from 'axios'
 import config from '../config/config'
-
+import Link from 'next/link'
+import Script from 'next/script'
+import { useRouter } from 'next/router'
 export default function Login({ token }) {
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [status, setStatus] = useState('')
+    const [ischeck, setIscheck] = useState('')
+    const router = useRouter()
 
     const login = async (req, res) => {
         try {
@@ -20,7 +24,8 @@ export default function Login({ token }) {
             console.log('result: ', result)
             console.log('result.data:  ', result.data)
             console.log('token:  ', token)
-            setStatus(result.status + ': ' + result.data.user.username)
+            setStatus(result.status + ' : ' + result.data.user.username + '  ' )
+
         }
         catch (e) {
             console.log('error: ', JSON.stringify(e.response))
@@ -56,27 +61,71 @@ export default function Login({ token }) {
         navigator.clipboard.writeText(token)
     }
 
+
+
+
     return (
         <Layout>
             <Head>
                 <title>Login</title>
             </Head>
-            <div className={styles.container}>
-                <Navbar />
-                <h1>Login</h1>
-                <div><b>Token:</b> {token.substring(0, 15)}...
+             <header className="flex justify-between bg-pink-900 ">
+            <Navbar />
+            </header>
+            <div className="flex  justify-center h-screen bg-gray-800">
+
+            <div className='flex flex-col justify-center h-screen  '>
+            <div className='flex flex-col justify-center  flex-col space-y-5 '>
+            <div className='flex  flex-row  justify-center text-5xl font-extrabold '>
+            <span className='bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-lime-500  '>
+                Login
+                </span>
+                </div>
+                <div  className='flex flex-row justify-center  bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-lime-500 '>
+                <b>Token:</b> {token.substring(0, 15)}...
                 <button onClick={copyText}> Copy token </button>
                 </div>
                 <br/>
-                <div>
+                <div  className='flex flex-row justify-center bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-lime-500   '>
                     Status:  {status}
-                </div>
-                <br />
-                {loginForm()}
-                <div>
-                    <button onClick={login}>Login</button>
+                    check: {ischeck} 
                 </div>
             </div>
+            <div className='flex flex-row justify-center '>
+                <br />
+                {loginForm()}
+            </div>
+                <div  className='flex flex-col justify-center  '>
+                <div  className='flex flex-row justify-center bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-lime-500  '>
+                    <input type="checkbox"
+                        name="IsRememberMe"
+                        onChange={ (e) => router.push('#')??setIscheck(e.target.value)}
+                    />Remember me!
+                    <br /><br />
+                </div>
+                </div>
+                <div className='flex flex-col flex flex-col space-y-4 '>
+                 <div  className='flex flex-col justify-center  '>
+                <button className='bg-pink-700 hover:bg-pink-900 text-white font-bold py-2 px-4 rounded-full' onClick={() => router.push('/profile')}>
+                            Go to Profile
+                </button>
+                </div>
+               
+                <div  className='flex flex-col justify-center  '>
+                     <button className='bg-pink-700 hover:bg-pink-900 text-white font-bold py-2 px-4 rounded-full' onClick={() => router.push('/register')}>
+                            Register
+                </button>
+                </div>
+                <div></div>
+                 <div  className='flex flex-col justify-center  '>
+                    <button className='bg-pink-700 hover:bg-pink-900 text-white font-bold py-2 px-4 rounded-full' onClick={login} >Login</button>
+                </div>
+                </div>
+                </div>
+            </div>
+              <footer className="flex justify-center mt-4 bg-pink-900 p-4">
+          <div>Copy right by Kriengsak Sajjapiromruk</div>
+        </footer>
         </Layout>
     )
 }
@@ -84,3 +133,4 @@ export default function Login({ token }) {
 export function getServerSideProps({ req, res }) {
     return { props: { token: req.cookies.token || "" } };
 }
+
